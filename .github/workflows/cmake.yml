@@ -68,7 +68,5 @@ jobs:
       working-directory: ${{github.workspace}}/PicoRobot/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: |
-      cmake .. -G Ninja -DPICO_SDK_PATH=../../pico-sdk -DCMAKE_BUILD_TYPE=Debug
-      cmake --build .
+      run: cmake --build . --config $BUILD_TYPE --parallel $(nproc)
 
