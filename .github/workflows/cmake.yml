@@ -65,11 +65,10 @@ jobs:
       run : cat /proc/cpuinfo  | grep processor | wc -l
 
     - name: Build
-      working-directory: ${{github.workspace}}/PicoRobot
+      working-directory: ${{github.workspace}}/PicoRobot/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: |
-      cd build
       cmake .. -G Ninja -DPICO_SDK_PATH=../../pico-sdk -DCMAKE_BUILD_TYPE=Debug
       cmake --build .
 
