@@ -12,7 +12,6 @@
             "request": "launch",
             "type": "cortex-debug",
             "interface": "swd",
-            //"serialNumber": "XXXXX",
             "device": "RP2040_M0_0",
             "svdFile": "${env:PICO_SDK_PATH}/src/rp2040/hardware_regs/rp2040.svd",
             "postRestartCommands": [
@@ -27,7 +26,6 @@
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
-            // This may need to be arm-none-eabi-gdb depending on your system
             "gdbPath" : "arm-none-eabi-gdb",
             "device": "RP2040",
             "configFiles": [
@@ -36,11 +34,11 @@
             ],
             "svdFile": "${env:PICO_SDK_PATH}/src/rp2040/hardware_regs/rp2040.svd",
             "runToMain": true,
-            // Work around for stopping at main on restart
             "postRestartCommands": [
                 "break main",
                 "continue"
             ],
+            // ! PATH TO OPENOCD TCL !
             "searchDir": ["C:/tools/Pico/openocd/tcl"],
             "showDevDebugOutput": "raw",
         },       
