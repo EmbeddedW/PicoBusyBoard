@@ -40,6 +40,10 @@ jobs:
       working-directory: ${{github.workspace}}/pico-sdk
       run: git submodule update --init
 
+    - name: Checkout FreeRTOS submodules
+      working-directory: ${{github.workspace}}//PicoRobot/rtos
+      run: git submodule update --init
+
     - name: Install Arm GNU Toolchain
       uses: carlosperate/arm-none-eabi-gcc-action@v1
 
