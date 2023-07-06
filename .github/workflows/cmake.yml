@@ -41,11 +41,11 @@ jobs:
       run: git submodule update --init
 
     - name: Checkout FreeRTOS submodules
-      working-directory: ${{github.workspace}}//PicoRobot/rtos
+      working-directory: ${{github.workspace}}/PicoRobot/rtos
       run: git submodule update --init
 
     - name: Install Arm GNU Toolchain
-      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      run: sudo apt-get install gcc-arm-none-eabi
 
     - name: Check Version Arm GNU Toolchain
       run: arm-none-eabi-gcc --version
