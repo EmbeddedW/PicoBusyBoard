@@ -1,7 +1,7 @@
 #include "../include/main.h"
 
 void blink_led();
-
+int stateTEST = ST_ENTRY;
 
 int main() {
 
@@ -18,6 +18,9 @@ void blink_led(){
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     while (true) {
+        /* TRY ME */
+        state_update(stateTEST);
+
         printf("Set ON LED\n");
         gpio_put(LED_PIN, 1);
         vTaskDelay(500 / portTICK_PERIOD_MS);

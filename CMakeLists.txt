@@ -24,10 +24,12 @@ add_subdirectory(rtos)
 
 set(SOURCES 
 src/main.c
+src/state_machine.c
 )
 
 set(INCLUDES 
 include/main.h
+include/state_machine.h
 )
 
 add_executable(src ${SOURCES} ${INCLUDES})
