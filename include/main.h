@@ -10,4 +10,7 @@
 #include "hardware/spi.h"
 #include "hardware/uart.h"
 
+
+#include "e220_LoRa.h"
+
 #endif

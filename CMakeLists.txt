@@ -28,6 +28,8 @@ src/main.c
 
 set(INCLUDES 
 include/main.h
+
+include/e220_LoRa.h
 )
 
 add_executable(src ${SOURCES} ${INCLUDES})
