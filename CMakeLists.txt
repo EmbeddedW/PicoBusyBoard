@@ -21,7 +21,6 @@ pico_sdk_init()
 #add_subdirectory(include)
 add_subdirectory(rtos)
 
-
 set(SOURCES 
 src/main.c
 )
@@ -30,7 +29,13 @@ set(INCLUDES
 include/main.h
 )
 
-add_executable(src ${SOURCES} ${INCLUDES})
+set(PICORGB
+PicoRGB/ws2812.c
+PicoRGB/ws2812pio.h
+)
+
+
+add_executable(src ${SOURCES} ${INCLUDES} ${PICORGB})
 
 # target_include_directories(include PRIVATE
 # ${PROJECT_SOURCE_DIR}/include)
@@ -38,7 +43,7 @@ add_executable(src ${SOURCES} ${INCLUDES})
 
 #target_link_libraries(src pico_stdlib hardware_spi freertos)
 
-target_link_libraries(src freertos pico_stdlib hardware_spi)
+target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pio)
 
 
 pico_enable_stdio_usb(src 1)
