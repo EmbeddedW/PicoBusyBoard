@@ -9,5 +9,7 @@
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/uart.h"
+#include "hardware/pwm.h"
+#include "hardware/clocks.h"
 
 #endif
