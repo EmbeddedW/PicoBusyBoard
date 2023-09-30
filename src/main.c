@@ -9,7 +9,7 @@
 #include "../PicoRGB/ws2812pio.h"
 
 #define IS_RGBW true
-#define NUM_PIXELS 2
+#define NUM_PIXELS 16
 
 #ifdef PICO_DEFAULT_WS2812_PIN
 #define WS2812_PIN PICO_DEFAULT_WS2812_PIN
@@ -101,7 +101,7 @@ int main() {
 
 void blink_led(){
 
-    const uint LED_PIN = 0;
+    const uint LED_PIN = 25;
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     while (true) {
