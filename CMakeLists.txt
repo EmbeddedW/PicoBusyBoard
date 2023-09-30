@@ -24,10 +24,12 @@ add_subdirectory(rtos)
 
 set(SOURCES 
 src/main.c
+src/buzzer.c
 )
 
 set(INCLUDES 
 include/main.h
+include/buzzer.h
 )
 
 add_executable(src ${SOURCES} ${INCLUDES})
@@ -38,7 +40,7 @@ add_executable(src ${SOURCES} ${INCLUDES})
 
 #target_link_libraries(src pico_stdlib hardware_spi freertos)
 
-target_link_libraries(src freertos pico_stdlib hardware_spi)
+target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pwm)
 
 
 pico_enable_stdio_usb(src 1)
