@@ -24,10 +24,12 @@ add_subdirectory(rtos)
 
 set(SOURCES 
 src/main.c
+src/buzzer.c
 )
 
 set(INCLUDES 
 include/main.h
+include/buzzer.h
 )
 
 add_executable(src ${SOURCES} ${INCLUDES})
