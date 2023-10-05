@@ -12,4 +12,7 @@
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
 
+
+void test();
+
 #endif
