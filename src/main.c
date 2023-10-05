@@ -1,10 +1,23 @@
 #include "../include/main.h"
 #include "../include/dio.h"
+#include "../include/buzzer.h"
 
+extern note_struct turnON[];
+extern note_struct wish[];
+
+void blink_led();
+static const uint8_t PIN_PWM = 14u;
+const uint LED_PIN = 25;
+uint  slice_num;
 
 int main() {
 
-    stdio_init_all();
+    stdio_init_all();    
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    gpio_set_function(PIN_PWM, GPIO_FUNC_PWM);
+    slice_num = pwm_gpio_to_slice_num(PIN_PWM); 
 
     leds_init();
     buttons_init();
@@ -16,22 +29,20 @@ int main() {
 
 void blink_led(){
 
-    bool test1;
-    bool test2;
-    bool test3; 
-    
+
+    play_melody(slice_num, turnON, 200, 3);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 
     while (true) {
+        play_melody(slice_num, wish, 200, 30);
         printf("Set ON LED\n");
-        //gpio_put(LED_PIN, 1);
-
         test();
+        gpio_put(LED_PIN, 1);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
 
-        // vTaskDelay(500 / portTICK_PERIOD_MS);
-        // printf("Set OFF LED\n");     
-        // gpio_put(LED_PIN, 0);  
-        // vTaskDelay(500 / portTICK_PERIOD_MS);
-
+        printf("Set OFF LED\n");     
+        gpio_put(LED_PIN, 0);  
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
 
