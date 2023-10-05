@@ -7,7 +7,6 @@ extern note_struct wish[];
 
 void blink_led();
 static const uint8_t PIN_PWM = 14u;
-const uint LED_PIN = 25;
 uint  slice_num;
 
 int main() {
