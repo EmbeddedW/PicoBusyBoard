@@ -23,10 +23,12 @@ add_subdirectory(rtos)
 
 set(SOURCES 
 src/main.c
+src/ws2812.c
 )
 
 set(INCLUDES 
 include/main.h
+include/ws2812.h
 )
 
 set(PICORGB

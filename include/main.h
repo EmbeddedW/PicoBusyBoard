@@ -9,5 +9,9 @@
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/uart.h"
+#include "hardware/pio.h"
+#include "hardware/clocks.h"
+#include "../PicoRGB/ws2812pio.h"
+
 
 #endif
