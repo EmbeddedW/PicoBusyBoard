@@ -24,10 +24,12 @@ add_subdirectory(rtos)
 
 set(SOURCES 
 src/main.c
+src/dio.c
 )
 
 set(INCLUDES 
 include/main.h
+include/dio.h
 )
 
 add_executable(src ${SOURCES} ${INCLUDES})
