@@ -24,11 +24,15 @@ add_subdirectory(rtos)
 set(SOURCES 
 src/main.c
 src/ws2812.c
+src/dio.c
+src/buzzer.c
 )
 
 set(INCLUDES 
 include/main.h
 include/ws2812.h
+include/dio.h
+include/buzzer.h
 )
 
 set(PICORGB
@@ -45,8 +49,7 @@ add_executable(src ${SOURCES} ${INCLUDES} ${PICORGB})
 
 #target_link_libraries(src pico_stdlib hardware_spi freertos)
 
-target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pio)
-
+target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pwm hardware_pio)
 
 pico_enable_stdio_usb(src 1)
 pico_enable_stdio_uart(src 0)
