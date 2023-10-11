@@ -1,5 +1,7 @@
 #include "../include/ws2812.h"
 
+
+
 static inline void put_pixel(uint32_t pixel_grb) {
     pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
 }

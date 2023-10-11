@@ -1,5 +1,8 @@
 #include "../include/buzzer.h"
 
+extern uint slice_num;
+
+static const uint8_t PIN_PWM = 14u;
 
 // 3 nutes
 note_struct turnON[] = {{NOTE_A6, 8}, {NOTE_CS7, 8}, {NOTE_E7, 8}};
@@ -192,4 +195,25 @@ void  play_melody(uint slice_num,note_struct * n,uint tempo, uint nmbr_of_nutes)
           vTaskDelay(duration * (1 / portTICK_PERIOD_MS));
     }
 
+}
+
+void buzzer_init(){
+
+    gpio_set_function(PIN_PWM, GPIO_FUNC_PWM);
+    slice_num = pwm_gpio_to_slice_num(PIN_PWM); 
+
+}
+
+void buzzer(){
+
+    play_melody(slice_num, turnON, 200, 3);
+
+    while (true) {
+
+    //play_melody(slice_num, wish, 200, 30);
+
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    
+
+    }
 }

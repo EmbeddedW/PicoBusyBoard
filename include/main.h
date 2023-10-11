@@ -14,6 +14,6 @@
 #include "../PicoRGB/ws2812pio.h"
 #include "hardware/pwm.h"
 
-void test();
+
 
 #endif

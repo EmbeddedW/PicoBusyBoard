@@ -36,3 +36,29 @@ void leds_init(){
     gpio_set_dir(LED_BUTTON_3, GPIO_OUT);
 
 }
+
+
+
+void dio_test(){
+
+        bool test1;
+        bool test2;
+        bool test3; 
+
+    while (true) {
+
+        test1 = gpio_get(BLACK_ONE_BUTTON_PIN);
+        test2 = gpio_get(BLACK_TWO_BUTTON_PIN);
+        test3 = gpio_get(BLACK_THREE_BUTTON_PIN);
+
+        if (test1) gpio_put(LED_BUTTON_1, 1);
+        else gpio_put(LED_BUTTON_1, 0);
+
+        if (test2) gpio_put(LED_BUTTON_2, 1);
+        else gpio_put(LED_BUTTON_2, 0);
+
+        if (test3) gpio_put(LED_BUTTON_3, 1);
+        else gpio_put(LED_BUTTON_3, 0);
+    }
+
+}

@@ -1,12 +1,7 @@
 #ifndef BUZZER_H
 #define BUZZER_H
 
-#include <FreeRTOS.h>
-#include <task.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "hardware/pwm.h"
-#include "hardware/clocks.h"
+#include "main.h"
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -110,5 +105,8 @@ typedef struct{
 
 static inline void pwm_calcDivTop(pwm_config *c,int frequency,int sysClock);
 extern void play_melody(uint slice_num,note_struct * n,uint tempo, uint nmbr_of_nutes);
+
+void buzzer();
+void buzzer_init();
 
 #endif

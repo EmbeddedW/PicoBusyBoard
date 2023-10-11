@@ -1,12 +1,7 @@
 #ifndef DIO_H
 #define DIO_H
 
-#include <FreeRTOS.h>
-#include <task.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "pico/stdlib.h"
+#include "main.h"
 
 #define LED_PIN 25
 #define LED_BUTTON_1 10
@@ -25,6 +20,6 @@
 void buttons_init();
 void leds_init();
 void blink_led();
-
+void dio_test();
 
 #endif
