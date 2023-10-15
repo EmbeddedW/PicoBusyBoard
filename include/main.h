@@ -13,6 +13,7 @@
 #include "hardware/clocks.h"
 #include "../PicoRGB/ws2812pio.h"
 #include "hardware/pwm.h"
+#include "hardware/adc.h"
 
 void test();
 

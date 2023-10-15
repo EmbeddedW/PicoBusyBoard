@@ -13,6 +13,7 @@
 #define WS2812_PIN 18
 #endif
 
+extern uint16_t adc_result;
 
 void led_ws2812();
 
