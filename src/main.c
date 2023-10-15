@@ -8,7 +8,13 @@ extern note_struct turnON[];
 extern note_struct wish[];
 
 void blink_led();
+void adc_task();
+
+#define ADC_PIN 28
+
 static const uint8_t PIN_PWM = 14u;
+uint16_t adc_result;
+
 uint  slice_num;
 
 int main() {
@@ -29,9 +35,17 @@ int main() {
     int sm = 0;
     uint offset = pio_add_program(pio, &ws2812_program);
 
+
+    adc_init();
+    adc_gpio_init(ADC_PIN);
+    adc_select_input(2);
+
     ws2812_program_init(pio, sm, offset, WS2812_PIN, 800000, IS_RGBW);
     xTaskCreate(blink_led, "Blink_led_task", 256, NULL, 1, NULL);
     xTaskCreate(led_ws2812, "Led_WS2812 Controll", 256, NULL, 1, NULL);
+
+
+    xTaskCreate(adc_task, "Led_WS2812 Controll", 32, NULL, 1, NULL);
 
     vTaskStartScheduler();
     return 0;
@@ -44,7 +58,7 @@ void blink_led(){
 
 
     while (true) {
-        play_melody(slice_num, wish, 200, 30);
+        //play_melody(slice_num, wish, 200, 30);
         printf("Set ON LED\n");
         test();
         gpio_put(LED_PIN, 1);
@@ -75,4 +89,13 @@ void test(){
         if (test3) gpio_put(LED_BUTTON_3, 1);
         else gpio_put(LED_BUTTON_3, 0);
 
+}
+
+void adc_task(){
+
+
+    while (true) {
+        adc_result = adc_read();
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
 }

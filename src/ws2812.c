@@ -59,21 +59,29 @@ const struct {
         {pattern_greys,   "Greys"},
 };
 
-
+uint8_t red_val;
+uint8_t green_val = 0;
+uint8_t blue_val = 0;
 void led_ws2812(){
 
-    int t = 0;
+    //uint8_t red_val = -0 (uint8_t)((adc_result & 0xFF) >> 8);
+
 
     while (true) {
-        int pat = rand() % count_of(pattern_table);
-        int dir = (rand() >> 30) & 1 ? 1 : -1;
-        puts(pattern_table[pat].name);
-        puts(dir == 1 ? "(forward)" : "(backward)");
-            for (int i = 0; i < 1000; ++i) {
-            pattern_table[pat].pat(NUM_PIXELS, t);
-            vTaskDelay(100);
-            t += dir;
+
+        // & 0x0f for minimum brightness of LED 
+        
+        red_val = (uint8_t)((adc_result & 0x0F) & 0x0f);
+        green_val = (uint8_t)(((adc_result & 0xF0) >> 4) & 0x0f);
+        blue_val = (uint8_t)(((adc_result & 0xF00) >> 8) & 0x0f);
+
+        for (int i = 0; i < 12; i++) 
+        {    
+        //put_pixel(urgb_u32(0x0f, 0, 0));  // Red   
+        put_pixel(urgb_u32(red_val, green_val, blue_val));     
         }
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        
     }
 
 }
