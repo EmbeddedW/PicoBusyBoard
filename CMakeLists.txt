@@ -49,7 +49,7 @@ add_executable(src ${SOURCES} ${INCLUDES} ${PICORGB})
 
 #target_link_libraries(src pico_stdlib hardware_spi freertos)
 
-target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_adc)
+target_link_libraries(src freertos pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_adc hardware_dma)
 
 pico_enable_stdio_usb(src 1)
 pico_enable_stdio_uart(src 0)

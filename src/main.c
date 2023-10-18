@@ -6,6 +6,7 @@
 
 extern note_struct turnON[];
 extern note_struct wish[];
+extern note_struct HappyBirday[];
 
 void blink_led();
 void adc_task();
@@ -29,23 +30,16 @@ int main() {
     leds_init();
     buttons_init();
 
-
-    // todo get free sm
-    PIO pio = pio0;
-    int sm = 0;
-    uint offset = pio_add_program(pio, &ws2812_program);
-
+    ws2812_dma_init();
 
     adc_init();
     adc_gpio_init(ADC_PIN);
     adc_select_input(2);
 
-    ws2812_program_init(pio, sm, offset, WS2812_PIN, 800000, IS_RGBW);
-    xTaskCreate(blink_led, "Blink_led_task", 256, NULL, 1, NULL);
+    xTaskCreate(blink_led, "Blink_led_task", 256, NULL, 2, NULL);
     xTaskCreate(led_ws2812, "Led_WS2812 Controll", 256, NULL, 1, NULL);
 
-
-    xTaskCreate(adc_task, "Led_WS2812 Controll", 32, NULL, 1, NULL);
+    xTaskCreate(adc_task, "Led_WS2812 Controll", 32, NULL, 2, NULL);
 
     vTaskStartScheduler();
     return 0;
@@ -58,7 +52,7 @@ void blink_led(){
 
 
     while (true) {
-        //play_melody(slice_num, wish, 200, 30);
+        //play_melody(slice_num, HappyBirday, 200, 26);
         printf("Set ON LED\n");
         test();
         gpio_put(LED_PIN, 1);
@@ -96,6 +90,6 @@ void adc_task(){
 
     while (true) {
         adc_result = adc_read();
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }

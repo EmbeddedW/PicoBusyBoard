@@ -4,7 +4,12 @@
 #include "main.h"
 
 #define IS_RGBW true
+
+#define FRAC_BITS 4
 #define NUM_PIXELS 16
+#define WS2812_PIN_BASE 18
+
+
 
 #ifdef PICO_DEFAULT_WS2812_PIN
 #define WS2812_PIN PICO_DEFAULT_WS2812_PIN
@@ -16,5 +21,6 @@
 extern uint16_t adc_result;
 
 void led_ws2812();
+void ws2812_dma_init();
 
 #endif

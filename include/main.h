@@ -5,6 +5,7 @@
 #include <task.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
@@ -14,6 +15,10 @@
 #include "../PicoRGB/ws2812pio.h"
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
+
+#include "pico/sem.h"
+#include "hardware/dma.h"
+#include "hardware/irq.h"
 
 void test();
 
