@@ -5,6 +5,7 @@ uint8_t red_val;
 uint8_t green_val = 0;
 uint8_t blue_val = 0;
 
+uint8_t colour = 0xff;
 
 // horrible temporary hack to avoid changing pattern code
 static uint8_t *current_strip_out;
@@ -63,11 +64,88 @@ void pattern_greys(uint len, uint t) {
     blue_val = (uint8_t)(((adc_result & 0xF00) >> 8) & 0x0f);
 
     for (int i = 0; i < len; ++i) {
-        //put_pixel(t * 0x10101);
-//        put_pixel(urgb_u32(red_val, green_val, blue_val));
-
-        put_pixel(urgb_u32(0x0f, 0, 0));
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
     }
+}
+
+enum {
+    GREEN = 0,
+    YELLOW,
+    BLUE,
+    WHITE,
+};
+
+void pattern_singleColour(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    int test = 0;
+
+    if (board_state != 4) colour = 0xff;
+
+    switch (colour)
+    {
+    case GREEN:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break;
+    case YELLOW:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break; 
+    case BLUE:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x0f;
+        break;
+    case WHITE:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x1f;
+        blue_val = (uint8_t)0x1f;
+        break; 
+    default:
+        // RED
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        test = 1;
+        break;
+    }
+
+    for (int i = 0; i < len; ++i) {
+
+        if (test){
+
+            if(i == 15)
+            {
+            //GREEN
+            put_pixel(urgb_u32(0x00, 0x00, 0x0f));
+            }
+            else if (i == 14)
+            {
+            //YELLOW                    
+            put_pixel(urgb_u32(0x1f, 0x00, 0x0f));
+            }
+            else if (i == 13)
+            {
+            //BLUE                    
+            put_pixel(urgb_u32(0x00, 0x0f, 0x00));
+            }
+            else if (i == 12)
+            {                
+            //WHITE
+            put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+            }
+            else {
+            put_pixel(urgb_u32(red_val, blue_val, green_val));
+            }
+
+        }  else {      
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
+        }
+    }
+
 }
 
 void pattern_solid(uint len, uint t) {
@@ -109,6 +187,7 @@ const struct {
 //        {pattern_random,  "Random data"},
 //        {pattern_sparkle, "Sparkles"},
         {pattern_greys,   "Greys"},
+        {pattern_singleColour,   "Colour"},
 //        {pattern_solid,  "Solid!"},
 //        {pattern_fade, "Fade"},
 };
@@ -289,7 +368,16 @@ void led_ws2812(){
     int t = 0;
     while (true) {
 
+        if (button_green) colour = GREEN;
+        if (button_yellow) colour = YELLOW;
+        if (button_blue) colour = BLUE;
+        if (button_white) colour = WHITE;
+
         int pat = rand() % count_of(pattern_table);
+
+        if (board_state == 4) pat = 1;
+        else pat = 0;
+
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;
         puts(pattern_table[pat].name);

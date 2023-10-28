@@ -8,15 +8,36 @@ extern note_struct turnON[];
 extern note_struct wish[];
 extern note_struct HappyBirday[];
 
-void blink_led();
+void board_buttons();
 void adc_task();
 
 #define ADC_PIN 28
 
 static const uint8_t PIN_PWM = 14u;
 uint16_t adc_result;
-
 uint  slice_num;
+
+int board_state;
+
+typedef enum{
+
+    GAME = 0,
+    BUZZER_BUTTONS,
+    BUZZER_NUTES,
+    LCD_COLORS,
+    LCD_BUTTONS,
+    //5
+    //6
+    IDLE = 7,
+} states_t;
+
+ bool button_black_1;
+ bool button_black_2;
+ bool button_black_3; 
+ bool button_white;
+ bool button_blue;
+ bool button_yellow;
+ bool button_green;
 
 int main() {
 
@@ -36,7 +57,7 @@ int main() {
     adc_gpio_init(ADC_PIN);
     adc_select_input(2);
 
-    xTaskCreate(blink_led, "Blink_led_task", 256, NULL, 2, NULL);
+    xTaskCreate(board_buttons, "Blink_led_task", 256, NULL, 2, NULL);
     xTaskCreate(led_ws2812, "Led_WS2812 Controll", 256, NULL, 1, NULL);
 
     xTaskCreate(adc_task, "Led_WS2812 Controll", 32, NULL, 2, NULL);
@@ -45,51 +66,43 @@ int main() {
     return 0;
 }
 
-void blink_led(){
+void board_buttons(){
 
     play_melody(slice_num, turnON, 200, 3);
     vTaskDelay(500 / portTICK_PERIOD_MS);
 
-
     while (true) {
-        //play_melody(slice_num, HappyBirday, 200, 26);
-        printf("Set ON LED\n");
-        test();
-        gpio_put(LED_PIN, 1);
-        vTaskDelay(500 / portTICK_PERIOD_MS);
 
-        printf("Set OFF LED\n");     
-        //gpio_put(LED_PIN, 0);  
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        button_black_1 = gpio_get(BLACK_ONE_BUTTON_PIN);
+        button_black_2 = gpio_get(BLACK_TWO_BUTTON_PIN);
+        button_black_3 = gpio_get(BLACK_THREE_BUTTON_PIN);
+
+        button_white    = gpio_get(WHITE_BUTTON_PIN);
+        button_blue     = gpio_get(BLUE_BUTTON_PIN);
+        button_yellow   = gpio_get(YELLOW_BUTTON_PIN);
+        button_green    = gpio_get(GREEN_BUTTON_PIN);
+
+        board_state = button_black_1 | (button_black_2 << 1) | (button_black_3 << 2);
+
+        if (button_black_1) gpio_put(LED_BUTTON_1, 0);
+        else gpio_put(LED_BUTTON_1, 1);
+
+        if (button_black_2) gpio_put(LED_BUTTON_2, 0);
+        else gpio_put(LED_BUTTON_2, 1);
+
+        if (button_black_3) gpio_put(LED_BUTTON_3, 0);
+        else gpio_put(LED_BUTTON_3, 1);
+
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
 }
 
-void test(){
-
-        bool test1;
-        bool test2;
-        bool test3; 
-
-        test1 = gpio_get(BLACK_ONE_BUTTON_PIN);
-        test2 = gpio_get(BLACK_TWO_BUTTON_PIN);
-        test3 = gpio_get(BLACK_THREE_BUTTON_PIN);
-
-        if (test1) gpio_put(LED_BUTTON_1, 1);
-        else gpio_put(LED_BUTTON_1, 0);
-
-        if (test2) gpio_put(LED_BUTTON_2, 1);
-        else gpio_put(LED_BUTTON_2, 0);
-
-        if (test3) gpio_put(LED_BUTTON_3, 1);
-        else gpio_put(LED_BUTTON_3, 0);
-
-}
 
 void adc_task(){
 
 
     while (true) {
         adc_result = adc_read();
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
