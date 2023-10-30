@@ -17,19 +17,9 @@ static const uint8_t PIN_PWM = 14u;
 uint16_t adc_result;
 uint  slice_num;
 
-int board_state;
+states_t BOARD_STATE;
 
-typedef enum{
-
-    GAME = 0,
-    BUZZER_BUTTONS,
-    BUZZER_NUTES,
-    LCD_COLORS,
-    LCD_BUTTONS,
-    //5
-    //6
-    IDLE = 7,
-} states_t;
+uint board_state;
 
  bool button_black_1;
  bool button_black_2;
@@ -70,6 +60,7 @@ void board_buttons(){
 
     play_melody(slice_num, turnON, 200, 3);
     vTaskDelay(500 / portTICK_PERIOD_MS);
+    int buttons_value = IDLE;
 
     while (true) {
 
@@ -82,7 +73,32 @@ void board_buttons(){
         button_yellow   = gpio_get(YELLOW_BUTTON_PIN);
         button_green    = gpio_get(GREEN_BUTTON_PIN);
 
-        board_state = button_black_1 | (button_black_2 << 1) | (button_black_3 << 2);
+        buttons_value = button_black_1 | (button_black_2 << 1) | (button_black_3 << 2);
+
+        switch (buttons_value)
+        {
+        case GAME:
+            BOARD_STATE = GAME;
+            break;
+        case BUZZER_BUTTONS:
+            BOARD_STATE = BUZZER_BUTTONS;
+            break;        
+        case BUZZER_NUTES:
+            BOARD_STATE = BUZZER_NUTES;
+            break;
+        case LCD_COLORS:
+            BOARD_STATE = LCD_COLORS;
+            break;
+        case LCD_BUTTONS:
+            BOARD_STATE = LCD_BUTTONS;
+            break;
+        case IDLE:
+            BOARD_STATE = IDLE;
+            break;               
+        default:
+            BOARD_STATE = IDLE;
+            break;
+        }
 
         if (button_black_1) gpio_put(LED_BUTTON_1, 0);
         else gpio_put(LED_BUTTON_1, 1);

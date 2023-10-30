@@ -183,13 +183,14 @@ const struct {
     pattern pat;
     const char *name;
 } pattern_table[] = {
-//        {pattern_snakes,  "Snakes!"},
-//        {pattern_random,  "Random data"},
-//        {pattern_sparkle, "Sparkles"},
         {pattern_greys,   "Greys"},
         {pattern_singleColour,   "Colour"},
-//        {pattern_solid,  "Solid!"},
-//        {pattern_fade, "Fade"},
+        {pattern_sparkle, "Sparkles"},
+        {pattern_random,  "Random data"},
+       {pattern_snakes,  "Snakes!"},
+       {pattern_random,  "Random data"},
+       {pattern_solid,  "Solid!"},
+       {pattern_fade, "Fade"},
 };
 
 #define VALUE_PLANE_COUNT (8 + FRAC_BITS)
@@ -375,8 +376,16 @@ void led_ws2812(){
 
         int pat = rand() % count_of(pattern_table);
 
-        if (board_state == 4) pat = 1;
-        else pat = 0;
+        if (BOARD_STATE == LCD_COLORS) pat = 0;
+        else if (BOARD_STATE == LCD_BUTTONS) pat = 1;
+        else if (BOARD_STATE == BUZZER_BUTTONS) pat = 2;
+        else if (BOARD_STATE == BUZZER_NUTES) pat = 3;
+        else if (BOARD_STATE == GAME) pat = 4;
+        else if (BOARD_STATE == EMPTY_5) pat = 5;
+        else if (BOARD_STATE == EMPTY_6) pat = 6;
+        else if (BOARD_STATE == IDLE) pat = 7;
+
+        
 
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;
@@ -385,22 +394,12 @@ void led_ws2812(){
         int brightness = 0x200;
         uint current = 0;
         for (int i = 0; i < 10; ++i) {
+
             current_strip_out = strip0.data;
             current_strip_4color = false;
             pattern_table[pat].pat(NUM_PIXELS, t);
             current_strip_out = strip1.data;
             current_strip_4color = true;
-            // pattern_table[pat].pat(NUM_PIXELS, t);
-
-            // for (int i = 0; i < 12; i++) 
-            // {    
-            // //put_pixel(urgb_u32(0x0f, 0, 0));  // Red   
-            // put_pixel(urgb_u32(red_val, green_val, blue_val));     
-            // }
-            // current_strip_out = strip1.data;
-            // // current_strip_4color = true;
-
-
             transform_strips(strips, count_of(strips), colors, NUM_PIXELS * 4, brightness);
             dither_values(colors, states[current], states[current ^ 1], NUM_PIXELS * 4);
             sem_acquire_blocking(&reset_delay_complete_sem);
@@ -411,13 +410,10 @@ void led_ws2812(){
             // brightness++;
             // if (brightness == (0x20 << FRAC_BITS)) brightness = 0;
         }
-        memset(&states, 0, sizeof(states)); // clear out errors
-        
-
+        memset(&states, 0, sizeof(states)); // clear out errors     
                 // & 0x0f for minimum brightness of LED 
-
-
-        
+       
+        vTaskDelay(10/portTICK_PERIOD_MS);
     }
 
 }

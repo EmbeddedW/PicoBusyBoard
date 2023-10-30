@@ -23,7 +23,9 @@ extern bool button_white;
 extern bool button_blue;
 extern bool button_yellow;
 extern bool button_green;
-extern int board_state;
+extern uint board_state;
+
+extern states_t BOARD_STATE;
 
 void led_ws2812();
 void ws2812_dma_init();
