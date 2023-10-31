@@ -42,17 +42,21 @@ void pattern_snakes(uint len, uint t) {
 }
 
 void pattern_random(uint len, uint t) {
+  
     if (t % 8)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand());
+
 }
 
 void pattern_sparkle(uint len, uint t) {
+ if (LED_RANDOM){
     if (t % 8)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand() % 16 ? 0 : 0xffffffff);
+ }
 }
 
 void pattern_greys(uint len, uint t) {
@@ -79,8 +83,6 @@ void pattern_singleColour(uint len, uint t) {
     int max = 100; // let's not draw too much current!
     t %= max;
     int test = 0;
-
-    if (board_state != 4) colour = 0xff;
 
     switch (colour)
     {
@@ -376,16 +378,15 @@ void led_ws2812(){
 
         int pat = rand() % count_of(pattern_table);
 
-        if (BOARD_STATE == LCD_COLORS) pat = 0;
-        else if (BOARD_STATE == LCD_BUTTONS) pat = 1;
+        if (BOARD_STATE == LCD_BUTTONS) pat = 0;
+        else if (BOARD_STATE == LCD_COLORS) pat = 1;
         else if (BOARD_STATE == BUZZER_BUTTONS) pat = 2;
         else if (BOARD_STATE == BUZZER_NUTES) pat = 3;
         else if (BOARD_STATE == GAME) pat = 4;
         else if (BOARD_STATE == EMPTY_5) pat = 5;
         else if (BOARD_STATE == EMPTY_6) pat = 6;
         else if (BOARD_STATE == IDLE) pat = 7;
-
-        
+      
 
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;
@@ -413,7 +414,7 @@ void led_ws2812(){
         memset(&states, 0, sizeof(states)); // clear out errors     
                 // & 0x0f for minimum brightness of LED 
        
-        vTaskDelay(10/portTICK_PERIOD_MS);
+        //vTaskDelay(10/portTICK_PERIOD_MS);
     }
 
 }

@@ -188,12 +188,16 @@ void  play_melody(uint slice_num,note_struct * n,uint tempo, uint nmbr_of_nutes)
           pwm_set_chan_level(slice_num,PWM_CHAN_A,cfg.top / 2);
           pwm_set_enabled(slice_num, true);
 
+          //sleep_ms(duration * 0.9);
+
           vTaskDelay(duration * (0.9 / portTICK_PERIOD_MS));
           pwm_set_chan_level(slice_num,PWM_CHAN_A,0);
           vTaskDelay(duration * (0.1 / portTICK_PERIOD_MS));
+          //sleep_ms(duration * 0.1);
       }
       else
           vTaskDelay(duration * (1 / portTICK_PERIOD_MS));
+          //sleep_ms(duration * 1.0);
     }
 
 }

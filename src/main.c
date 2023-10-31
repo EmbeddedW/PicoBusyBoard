@@ -8,8 +8,16 @@ extern note_struct turnON[];
 extern note_struct wish[];
 extern note_struct HappyBirday[];
 
+extern note_struct christmas[]; // 26
+extern note_struct wish[];      // 30
+extern note_struct santa[];     // 28
+extern note_struct Mario_melody[]; // 77
+
+
+
 void board_buttons();
 void adc_task();
+void buttons_melody();
 
 #define ADC_PIN 28
 
@@ -18,6 +26,8 @@ uint16_t adc_result;
 uint  slice_num;
 
 states_t BOARD_STATE;
+bool LED_RANDOM;
+
 
 uint board_state;
 
@@ -100,6 +110,58 @@ void board_buttons(){
             break;
         }
 
+    if(BOARD_STATE == BUZZER_NUTES)
+    {
+        if (button_green) play_melody(slice_num, turnON, 200, 3);
+        else if (button_yellow) play_melody(slice_num, turnON, 200, 3);
+        else if (button_blue) play_melody(slice_num, turnON, 200, 3);
+        else if (button_white) play_melody(slice_num, turnON, 200, 3);
+    } 
+    else if (BOARD_STATE == BUZZER_BUTTONS)
+    {
+        int pat = 0;
+
+        if (button_green) 
+        {
+        LED_RANDOM = 1;
+        play_melody(slice_num, Mario_melody, 200, 77);
+        }
+        else if (button_yellow) 
+        {
+        LED_RANDOM = 1;
+        play_melody(slice_num, turnON, 200, 3);
+        }
+        else if (button_blue) 
+        {
+        LED_RANDOM = 1;
+        play_melody(slice_num, HappyBirday, 200, 26);}
+        else if (button_white) {
+            pat = rand() % 3;
+            switch (pat)
+            {
+            case 0:
+                LED_RANDOM = 1;
+                play_melody(slice_num, christmas, 200, 26);
+                break;                
+            case 1:
+                LED_RANDOM = 1;
+                play_melody(slice_num, wish, 200, 30);
+                break;
+            case 2:
+                LED_RANDOM = 1;
+                play_melody(slice_num, santa, 200, 28);
+                break;                
+            
+            default:
+                LED_RANDOM = 0;
+                break;
+            }
+
+            }
+
+    LED_RANDOM = 0;
+    }
+
         if (button_black_1) gpio_put(LED_BUTTON_1, 0);
         else gpio_put(LED_BUTTON_1, 1);
 
@@ -109,7 +171,7 @@ void board_buttons(){
         if (button_black_3) gpio_put(LED_BUTTON_3, 0);
         else gpio_put(LED_BUTTON_3, 1);
 
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -122,3 +184,5 @@ void adc_task(){
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
+
+
