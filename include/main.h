@@ -24,14 +24,14 @@ void test();
 
 typedef enum{
 
-    GAME = 0,
+    IDLE = 0,
     BUZZER_BUTTONS,
     BUZZER_NUTES,
     LCD_COLORS,
     LCD_BUTTONS,
     EMPTY_5,
     EMPTY_6,
-    IDLE = 7,
+    GAME = 7,
 } states_t;
 
 #endif

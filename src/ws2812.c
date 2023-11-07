@@ -77,6 +77,9 @@ enum {
     YELLOW,
     BLUE,
     WHITE,
+    RED,
+    PURPLE,
+    LAST_OF_US,
 };
 
 void pattern_singleColour(uint len, uint t) {
@@ -108,7 +111,7 @@ void pattern_singleColour(uint len, uint t) {
         break; 
     default:
         // RED
-        red_val = (uint8_t)0x00;
+        red_val = (uint8_t)0x0f;
         green_val = (uint8_t)0x00;
         blue_val = (uint8_t)0x00;
         test = 1;
@@ -150,6 +153,66 @@ void pattern_singleColour(uint len, uint t) {
 
 }
 
+
+void pattern_GameColour(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    int test = 0;
+    static int random_colour;
+
+    if (button_white) random_colour = rand() % LAST_OF_US;
+
+    switch (random_colour)
+    {
+    case GREEN:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break;
+    case YELLOW:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break; 
+    case BLUE:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x0f;
+        break;
+    case WHITE:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x1f;
+        blue_val = (uint8_t)0x1f;
+        break; 
+    case RED:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break; 
+    case PURPLE:
+        red_val = (uint8_t)0x1c;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x1c;
+        break; 
+    
+    default:
+        // RED
+        red_val = (uint8_t)0x0f;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        test = 1;
+        break;
+    }
+
+    for (int i = 0; i < len; ++i) {
+
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
+       
+    }
+
+}
+
+
 void pattern_solid(uint len, uint t) {
     t = 1;
     for (int i = 0; i < len; ++i) {
@@ -189,7 +252,7 @@ const struct {
         {pattern_singleColour,   "Colour"},
         {pattern_sparkle, "Sparkles"},
         {pattern_random,  "Random data"},
-       {pattern_snakes,  "Snakes!"},
+       {pattern_GameColour,  "GAME!"},
        {pattern_random,  "Random data"},
        {pattern_solid,  "Solid!"},
        {pattern_fade, "Fade"},

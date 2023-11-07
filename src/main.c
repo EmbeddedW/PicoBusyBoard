@@ -4,6 +4,18 @@
 #include  "../include/ws2812.h"
 
 
+
+extern note_struct soundC[];//1
+extern note_struct soundB[];//1
+extern note_struct soundA[];//1
+extern note_struct soundG[];//1 
+
+
+extern note_struct lick[]; //7
+extern note_struct gameOverMario[]; //12
+
+extern note_struct pinkPanther[]; //88 
+
 extern note_struct turnON[];
 extern note_struct wish[];
 extern note_struct HappyBirday[];
@@ -12,7 +24,7 @@ extern note_struct christmas[]; // 26
 extern note_struct wish[];      // 30
 extern note_struct santa[];     // 28
 extern note_struct Mario_melody[]; // 77
-
+extern note_struct Mario_melody2[]; // 309
 
 
 void board_buttons();
@@ -112,10 +124,10 @@ void board_buttons(){
 
     if(BOARD_STATE == BUZZER_NUTES)
     {
-        if (button_green) play_melody(slice_num, turnON, 200, 3);
-        else if (button_yellow) play_melody(slice_num, turnON, 200, 3);
-        else if (button_blue) play_melody(slice_num, turnON, 200, 3);
-        else if (button_white) play_melody(slice_num, turnON, 200, 3);
+        if (button_green) play_melody(slice_num, soundC, 200, 1);
+        else if (button_yellow) play_melody(slice_num, soundB, 200, 1);
+        else if (button_blue) play_melody(slice_num, soundA, 200, 1);
+        else if (button_white) play_melody(slice_num, soundG, 200, 1);
     } 
     else if (BOARD_STATE == BUZZER_BUTTONS)
     {
@@ -124,12 +136,12 @@ void board_buttons(){
         if (button_green) 
         {
         LED_RANDOM = 1;
-        play_melody(slice_num, Mario_melody, 200, 77);
+        play_melody(slice_num, Mario_melody2, 200, 309);
         }
         else if (button_yellow) 
         {
         LED_RANDOM = 1;
-        play_melody(slice_num, turnON, 200, 3);
+        play_melody(slice_num, pinkPanther, 200, 88);
         }
         else if (button_blue) 
         {
@@ -171,7 +183,7 @@ void board_buttons(){
         if (button_black_3) gpio_put(LED_BUTTON_3, 0);
         else gpio_put(LED_BUTTON_3, 1);
 
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }
 
