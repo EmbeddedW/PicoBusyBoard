@@ -29,7 +29,7 @@ typedef enum{
     BUZZER_NUTES,
     LCD_COLORS,
     LCD_BUTTONS,
-    EMPTY_5,
+    LCD_PIXELS,
     EMPTY_6,
     GAME = 7,
 } states_t;

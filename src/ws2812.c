@@ -7,6 +7,19 @@ uint8_t blue_val = 0;
 
 uint8_t colour = 0xff;
 
+enum {
+    GREEN = 0,
+    YELLOW,
+    BLUE,
+    WHITE,
+    RED,
+    PURPLE,
+    LAST_OF_US,
+};
+
+static uint8_t pixel_array[16];
+static int counter;
+
 // horrible temporary hack to avoid changing pattern code
 static uint8_t *current_strip_out;
 static bool current_strip_4color;
@@ -72,15 +85,100 @@ void pattern_greys(uint len, uint t) {
     }
 }
 
-enum {
-    GREEN = 0,
-    YELLOW,
-    BLUE,
-    WHITE,
-    RED,
-    PURPLE,
-    LAST_OF_US,
-};
+
+void pattern_setPixels(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    uint8_t pixel_colour;
+    static bool set_array_pixel;
+    static bool unpush_button_detect;
+    if (button_green) 
+    {
+        pixel_colour = GREEN;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_yellow)    
+    {
+        pixel_colour = YELLOW;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_blue) 
+    {
+        pixel_colour = BLUE;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_white) 
+    {
+        pixel_colour = WHITE;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else {
+        set_array_pixel = 0;
+        unpush_button_detect = true;
+    }
+
+    if (button_green) colour = GREEN;
+    if (button_yellow) colour = YELLOW;
+    if (button_blue) colour = BLUE;
+    if (button_white) colour = WHITE;
+
+    if(true == set_array_pixel) {
+        pixel_array[counter] = colour;
+        set_array_pixel= 0;
+        ++counter;
+        if(counter==len)counter = 0; 
+    }
+
+
+    for (int i = 0; i < len; ++i) {
+
+    switch (pixel_array[i])
+        {
+        case GREEN:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break;
+        case YELLOW:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break; 
+        case BLUE:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x0f;
+        break;
+        case WHITE:
+        // BLANK  
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break; 
+        default:
+        // RED
+        red_val = (uint8_t)0x0f;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break;
+        }
+    put_pixel(urgb_u32(red_val, blue_val, green_val));
+    }
+
+
+}
 
 void pattern_singleColour(uint len, uint t) {
     int max = 100; // let's not draw too much current!
@@ -253,7 +351,7 @@ const struct {
         {pattern_sparkle, "Sparkles"},
         {pattern_random,  "Random data"},
        {pattern_GameColour,  "GAME!"},
-       {pattern_random,  "Random data"},
+       {pattern_setPixels,  "set diffrent pixels"},
        {pattern_solid,  "Solid!"},
        {pattern_fade, "Fade"},
 };
@@ -430,7 +528,7 @@ void ws2812_dma_init(){
 void led_ws2812(){
 
     //uint8_t red_val = -0 (uint8_t)((adc_result & 0xFF) >> 8);
-
+    static bool LCD_PIXELS_init;
     int t = 0;
     while (true) {
 
@@ -446,10 +544,23 @@ void led_ws2812(){
         else if (BOARD_STATE == BUZZER_BUTTONS) pat = 2;
         else if (BOARD_STATE == BUZZER_NUTES) pat = 3;
         else if (BOARD_STATE == GAME) pat = 4;
-        else if (BOARD_STATE == EMPTY_5) pat = 5;
+        else if (BOARD_STATE == LCD_PIXELS) {
+            pat = 5;
+            if(true == LCD_PIXELS_init)
+            {
+                LCD_PIXELS_init = false;
+                for(int i= 0; i<16; i++){
+                    pixel_array[i] = WHITE;   
+                    } 
+                counter = 0;
+            }
+        }
         else if (BOARD_STATE == EMPTY_6) pat = 6;
         else if (BOARD_STATE == IDLE) pat = 7;
       
+
+        if(BOARD_STATE != LCD_PIXELS) LCD_PIXELS_init = true;
+
 
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;

@@ -26,6 +26,7 @@ extern note_struct santa[];     // 28
 extern note_struct Mario_melody[]; // 77
 extern note_struct Mario_melody2[]; // 309
 
+extern note_struct STEPS[]; // 9
 
 void board_buttons();
 void adc_task();
@@ -81,8 +82,9 @@ int main() {
 void board_buttons(){
 
     play_melody(slice_num, turnON, 200, 3);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
     int buttons_value = IDLE;
+    static bool init_game = 1;
 
     while (true) {
 
@@ -100,7 +102,7 @@ void board_buttons(){
         switch (buttons_value)
         {
         case GAME:
-            BOARD_STATE = GAME;
+            BOARD_STATE = GAME;         
             break;
         case BUZZER_BUTTONS:
             BOARD_STATE = BUZZER_BUTTONS;
@@ -114,6 +116,9 @@ void board_buttons(){
         case LCD_BUTTONS:
             BOARD_STATE = LCD_BUTTONS;
             break;
+        case LCD_PIXELS:
+            BOARD_STATE = LCD_PIXELS;
+            break;            
         case IDLE:
             BOARD_STATE = IDLE;
             break;               
@@ -122,12 +127,23 @@ void board_buttons(){
             break;
         }
 
+        if (BOARD_STATE != GAME) init_game = 1;
+
+
+
     if(BOARD_STATE == BUZZER_NUTES)
     {
         if (button_green) play_melody(slice_num, soundC, 200, 1);
         else if (button_yellow) play_melody(slice_num, soundB, 200, 1);
         else if (button_blue) play_melody(slice_num, soundA, 200, 1);
         else if (button_white) play_melody(slice_num, soundG, 200, 1);
+    }
+    else if (BOARD_STATE == GAME){
+        if (1 == init_game)
+        { 
+            play_melody(slice_num, lick, 200, 7);
+            init_game = 0;
+        }
     } 
     else if (BOARD_STATE == BUZZER_BUTTONS)
     {
