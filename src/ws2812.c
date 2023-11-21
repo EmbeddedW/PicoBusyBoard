@@ -5,6 +5,68 @@ uint8_t red_val;
 uint8_t green_val = 0;
 uint8_t blue_val = 0;
 
+uint8_t colour = 0xff;
+
+enum {
+    GREEN = 0,
+    YELLOW,
+    BLUE,
+    WHITE,
+    RED,
+    PURPLE,
+    LAST_OF_US,
+};
+
+static uint8_t pixel_array[16];
+static uint8_t game_arrow_array[16] = 
+{1, 0, 0, 0,
+ 1, 0, 1, 0,
+ 0, 0, 1, 1,
+ 1, 1, 1, 0
+};
+
+static uint8_t T_array[16] = 
+{1, 1, 1, 1,
+ 0, 0, 1, 0,
+ 0, 1, 0, 0,
+ 0, 0, 1, 0
+};
+
+static uint8_t O_array[16] = 
+{1, 1, 1, 1,
+ 1, 0, 0, 1,
+ 1, 0, 0, 1,
+ 1, 1, 1, 1
+};
+
+static uint8_t M_array[16] = 
+{1, 1, 0, 1,
+ 1, 1, 0, 1,
+ 1, 0, 0, 1,
+ 1, 0, 0, 1
+};
+
+static uint8_t E_array[16] = 
+{1, 1, 1, 1,
+ 0, 1, 1, 1,
+ 1, 0, 0, 0,
+ 1, 1, 1, 1
+};
+
+static uint8_t K_array[16] = 
+{1, 0, 1, 1,
+ 0, 0, 1, 1,
+ 1, 0, 1, 0,
+ 1, 0, 0, 1
+};
+
+
+
+static uint8_t game_array[16];
+static int counter;
+static bool game_init = true;
+
+static bool default_colour_init;
 
 // horrible temporary hack to avoid changing pattern code
 static uint8_t *current_strip_out;
@@ -35,23 +97,27 @@ void pattern_snakes(uint len, uint t) {
             put_pixel(urgb_u32(0, 0xff, 0));
         else if (x >= 30 && x < 40)
             put_pixel(urgb_u32(0, 0, 0xff));
-        else
+        else 
             put_pixel(0);
     }
 }
 
 void pattern_random(uint len, uint t) {
-    if (t % 8)
+  
+    if (t % 32)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand());
+
 }
 
 void pattern_sparkle(uint len, uint t) {
+ if (LED_RANDOM){
     if (t % 8)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand() % 16 ? 0 : 0xffffffff);
+ }
 }
 
 void pattern_greys(uint len, uint t) {
@@ -63,12 +129,268 @@ void pattern_greys(uint len, uint t) {
     blue_val = (uint8_t)(((adc_result & 0xF00) >> 8) & 0x0f);
 
     for (int i = 0; i < len; ++i) {
-        //put_pixel(t * 0x10101);
-//        put_pixel(urgb_u32(red_val, green_val, blue_val));
-
-        put_pixel(urgb_u32(0x0f, 0, 0));
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
     }
 }
+
+
+void pattern_setPixels(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    uint8_t pixel_colour;
+    static bool set_array_pixel;
+    static bool unpush_button_detect;
+    if (button_green) 
+    {
+        pixel_colour = GREEN;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_yellow)    
+    {
+        pixel_colour = YELLOW;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_blue) 
+    {
+        pixel_colour = BLUE;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else if (button_white) 
+    {
+        pixel_colour = WHITE;
+        if (unpush_button_detect) {
+            set_array_pixel = 1;
+            unpush_button_detect = false;
+        }
+    }
+    else {
+        set_array_pixel = 0;
+        unpush_button_detect = true;
+    }
+
+    if (button_green) colour = GREEN;
+    if (button_yellow) colour = YELLOW;
+    if (button_blue) colour = BLUE;
+    if (button_white) colour = WHITE;
+
+    if(true == set_array_pixel) {
+        pixel_array[counter] = colour;
+        set_array_pixel= 0;
+        ++counter;
+        if(counter==len)counter = 0; 
+    }
+
+
+    for (int i = 0; i < len; ++i) {
+
+    switch (pixel_array[i])
+        {
+        case GREEN:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break;
+        case YELLOW:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break; 
+        case BLUE:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x0f;
+        break;
+        case WHITE:
+        // BLANK  
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break; 
+        default:
+        // RED
+        red_val = (uint8_t)0x0f;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break;
+        }
+    put_pixel(urgb_u32(red_val, blue_val, green_val));
+    }
+
+
+}
+
+void pattern_adcSnake(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    uint8_t pixel_colour;
+    static bool set_array_pixel;
+    static bool unpush_button_detect;
+
+    static uint8_t number_of_pixels; 
+
+    number_of_pixels = (uint8_t) (adc_result >> 8);
+
+    for (int i = 0; i < len; ++i) {
+
+    if(number_of_pixels <= i){
+    red_val = (uint8_t)0x0f;
+    green_val = (uint8_t)0x00;
+    blue_val = (uint8_t)0x00;
+    } else {
+    red_val = (uint8_t)0x00;
+    green_val = (uint8_t)0x00;
+    blue_val = (uint8_t)0x00;
+    }
+        
+    put_pixel(urgb_u32(red_val, blue_val, green_val));
+    }
+
+}
+
+
+void pattern_singleColour(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+
+    if (button_green || button_yellow || button_blue || button_white){
+        default_colour_init = false;
+    }
+
+    switch (colour)
+    {
+    case GREEN:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break;
+    case YELLOW:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x0f;
+        blue_val = (uint8_t)0x00;
+        break; 
+    case BLUE:
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x0f;
+        break;
+    case WHITE:
+        red_val = (uint8_t)0x1f;
+        green_val = (uint8_t)0x1f;
+        blue_val = (uint8_t)0x1f;
+        break; 
+    default:
+        // BLANK
+        red_val = (uint8_t)0x00;
+        green_val = (uint8_t)0x00;
+        blue_val = (uint8_t)0x00;
+        break;
+    }
+
+    for (int i = 0; i < len; ++i) {
+
+        if (default_colour_init){
+
+            if(i == 15)
+            {
+            //GREEN
+            put_pixel(urgb_u32(0x00, 0x00, 0x0f));
+            }
+            else if (i == 14)
+            {
+            //YELLOW                    
+            put_pixel(urgb_u32(0x1f, 0x00, 0x0f));
+            }
+            else if (i == 13)
+            {
+            //BLUE                    
+            put_pixel(urgb_u32(0x00, 0x0f, 0x00));
+            }
+            else if (i == 12)
+            {                
+            //WHITE
+            put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+            }
+            else {
+            put_pixel(urgb_u32(0x00, 0x00, 0x00));
+            }
+
+        }  else {      
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
+        }
+    }
+
+}
+
+
+void pattern_GameColour(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    int test = 0;
+    static bool start_game;
+    static int random_colour;
+    static bool colour_timer_start;
+    int pushed_button;
+
+    static bool lock_1;
+
+    static bool test_correct_flag;
+
+    static uint32_t timer;
+    
+    static int test_2;
+
+    if (true == game_init)
+        {
+        for (int i = 0; i < len; ++i) 
+            {
+            if(1 == game_arrow_array[i]) put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        else                         put_pixel(urgb_u32(0x00, 0x00, 0x00));
+            }
+        }
+
+    if (button_white)
+        {
+        start_game = false;
+        lock_1 = true;
+        game_init = false;
+        random_colour = rand() % 3;
+        colour_timer_start = set_lcd_colour(len, random_colour);   
+        } 
+
+    //CHECK THE BUTTONS STATUS;
+    button_white    = gpio_get(WHITE_BUTTON_PIN);
+    button_blue     = gpio_get(BLUE_BUTTON_PIN);
+    button_yellow   = gpio_get(YELLOW_BUTTON_PIN);
+    button_green    = gpio_get(GREEN_BUTTON_PIN);
+
+
+    if (button_green) pushed_button = GREEN;
+    else if (button_yellow) pushed_button = YELLOW;
+    else if (button_blue) pushed_button = BLUE;
+    else pushed_button = LAST_OF_US;
+
+    if(false == game_init)
+    {
+        if (random_colour == pushed_button)          
+            {
+            play_CORRECT = true;
+            } 
+        else if (pushed_button < LAST_OF_US)
+            {
+            play_WRONG = true;
+            }
+    }
+}
+
 
 void pattern_solid(uint len, uint t) {
     t = 1;
@@ -79,25 +401,56 @@ void pattern_solid(uint len, uint t) {
 
 int level = 8;
 
-void pattern_fade(uint len, uint t) {
-    uint shift = 4;
-
-    uint max = 16; // let's not draw too much current!
-    max <<= shift;
-
-    uint slow_t = t / 32;
-    slow_t = level;
-    slow_t %= max;
-
-    static int error = 0;
-    slow_t += error;
-    error = slow_t & ((1u << shift) - 1);
-    slow_t >>= shift;
-    slow_t *= 0x010101;
+void pattern_TOM(uint len, uint t) {
 
     for (int i = 0; i < len; ++i) {
-        put_pixel(slow_t);
+    switch (TOM_letter)
+    {
+    case 0: // T
+        if(true == T_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 1: // O
+        if(true == O_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 2: // M
+        if(true == M_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 3: // E
+        if(true == E_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 4: // K
+        if(true == K_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;     
+    default:
+        break;
     }
+   }
+    
 }
 
 typedef void (*pattern)(uint len, uint t);
@@ -105,12 +458,14 @@ const struct {
     pattern pat;
     const char *name;
 } pattern_table[] = {
-//        {pattern_snakes,  "Snakes!"},
-//        {pattern_random,  "Random data"},
-//        {pattern_sparkle, "Sparkles"},
-        {pattern_greys,   "Greys"},
-//        {pattern_solid,  "Solid!"},
-//        {pattern_fade, "Fade"},
+    {pattern_greys,   "Greys"},
+    {pattern_singleColour,   "Colour"},
+    {pattern_sparkle, "Sparkles"},
+    {pattern_random,  "Random data"},
+    {pattern_GameColour,  "GAME!"},
+    {pattern_setPixels,  "set diffrent pixels"},
+    {pattern_adcSnake,  "Adc Snakeee"},
+    {pattern_TOM, "TOM!"},
 };
 
 #define VALUE_PLANE_COUNT (8 + FRAC_BITS)
@@ -284,35 +639,58 @@ void ws2812_dma_init(){
 
 void led_ws2812(){
 
-    //uint8_t red_val = -0 (uint8_t)((adc_result & 0xFF) >> 8);
-
+    static bool LCD_PIXELS_init;
     int t = 0;
     while (true) {
 
+        if (button_green) colour = GREEN;
+        if (button_yellow) colour = YELLOW;
+        if (button_blue) colour = BLUE;
+        if (button_white) colour = WHITE;
+
         int pat = rand() % count_of(pattern_table);
+
+        if (BOARD_STATE == LCD_BUTTONS) pat = 0;
+        else if (BOARD_STATE == LCD_COLORS) pat = 1;
+        else if (BOARD_STATE == BUZZER_BUTTONS) pat = 2;
+        else if (BOARD_STATE == BUZZER_NUTES) pat = 3;
+        else if (BOARD_STATE == GAME) {                      
+            pat = 4;
+        }
+        else if (BOARD_STATE == LCD_PIXELS) {
+            pat = 5;
+            if(true == LCD_PIXELS_init)
+            {
+                LCD_PIXELS_init = false;
+                for(int i= 0; i<16; i++){
+                    pixel_array[i] = WHITE;   
+                    } 
+                counter = 0;
+            }
+        }
+        else if (BOARD_STATE == ADC_SNAKE) pat = 6;
+        else if (BOARD_STATE == IDLE) pat = 7;
+      
+
+        if(BOARD_STATE != LCD_PIXELS)   LCD_PIXELS_init = true;
+        if(BOARD_STATE != GAME)         game_init = true;
+        if(BOARD_STATE != LCD_COLORS)   default_colour_init = true;
+
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;
         puts(pattern_table[pat].name);
         puts(dir == 1 ? "(forward)" : dir ? "(backward)" : "(still)");
         int brightness = 0x200;
+        if (BOARD_STATE == BUZZER_NUTES) brightness= 0x050;
+
         uint current = 0;
         for (int i = 0; i < 10; ++i) {
+
             current_strip_out = strip0.data;
             current_strip_4color = false;
             pattern_table[pat].pat(NUM_PIXELS, t);
             current_strip_out = strip1.data;
             current_strip_4color = true;
-            // pattern_table[pat].pat(NUM_PIXELS, t);
-
-            // for (int i = 0; i < 12; i++) 
-            // {    
-            // //put_pixel(urgb_u32(0x0f, 0, 0));  // Red   
-            // put_pixel(urgb_u32(red_val, green_val, blue_val));     
-            // }
-            // current_strip_out = strip1.data;
-            // // current_strip_4color = true;
-
-
             transform_strips(strips, count_of(strips), colors, NUM_PIXELS * 4, brightness);
             dither_values(colors, states[current], states[current ^ 1], NUM_PIXELS * 4);
             sem_acquire_blocking(&reset_delay_complete_sem);
@@ -320,16 +698,59 @@ void led_ws2812(){
 
             current ^= 1;
             t += dir;
-            // brightness++;
-            // if (brightness == (0x20 << FRAC_BITS)) brightness = 0;
         }
-        memset(&states, 0, sizeof(states)); // clear out errors
-        
-
-                // & 0x0f for minimum brightness of LED 
-
-
-        
+        memset(&states, 0, sizeof(states));    
     }
 
+}
+
+bool set_lcd_colour(uint num_pixels, int colour){
+
+        switch (colour)
+            {
+            case 0: //GREEN:
+                red_val = (uint8_t)0x00;
+                green_val = (uint8_t)0x0f;
+                blue_val = (uint8_t)0x00;
+                break;
+            case 1: //YELLOW:
+                red_val = (uint8_t)0x1f;
+                green_val = (uint8_t)0x0f;
+                blue_val = (uint8_t)0x00;
+                break; 
+            case 2: //BLUE:
+                red_val = (uint8_t)0x00;
+                green_val = (uint8_t)0x00;
+                blue_val = (uint8_t)0x0f;
+                break;
+            // case WHITE:
+            //     red_val = (uint8_t)0x1f;
+            //     green_val = (uint8_t)0x1f;
+            //     blue_val = (uint8_t)0x1f;
+            //     break; 
+            // case RED:
+            //     red_val = (uint8_t)0x1f;
+            //     green_val = (uint8_t)0x00;
+            //     blue_val = (uint8_t)0x00;
+            //     break; 
+            // case PURPLE:
+            //     red_val = (uint8_t)0x1c;
+            //     green_val = (uint8_t)0x00;
+            //     blue_val = (uint8_t)0x1c;
+            //     break; 
+
+            default:
+                // RED
+                red_val = (uint8_t)0x0f;
+                green_val = (uint8_t)0x00;
+                blue_val = (uint8_t)0x00;
+                break;
+        }
+
+    for (int i = 0; i < num_pixels; ++i) {
+
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
+       
+    }
+    return true;
 }
