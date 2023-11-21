@@ -15,12 +15,9 @@
 #include "../PicoRGB/ws2812pio.h"
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
-
 #include "pico/sem.h"
 #include "hardware/dma.h"
 #include "hardware/irq.h"
-
-void test();
 
 typedef enum{
 

@@ -3,57 +3,51 @@
 #include "../include/buzzer.h"
 #include  "../include/ws2812.h"
 
+#define ADC_PIN 28
 
-
-extern note_struct soundC[];//1
-extern note_struct soundB[];//1
-extern note_struct soundA[];//1
-extern note_struct soundG[];//1 
-
-
-extern note_struct lick[]; //7
+                                    //number of notes 
+extern note_struct soundC[];        //1
+extern note_struct soundB[];        //1
+extern note_struct soundA[];        //1
+extern note_struct soundG[];        //1 
+extern note_struct lick[];          //7
 extern note_struct gameOverMario[]; //12
-
-extern note_struct pinkPanther[]; //88 
-
+extern note_struct pinkPanther[];   //88 
 extern note_struct turnON[];
 extern note_struct wish[];
 extern note_struct HappyBirday[];
-
-extern note_struct christmas[]; // 26
-extern note_struct wish[];      // 30
-extern note_struct santa[];     // 28
-extern note_struct Mario_melody[]; // 77
+extern note_struct christmas[];     //26
+extern note_struct wish[];          // 30
+extern note_struct santa[];         // 28
+extern note_struct Mario_melody[];  // 77
 extern note_struct Mario_melody2[]; // 309
-
-extern note_struct STEPS[]; // 9
+extern note_struct STEPS[];         // 9
 
 void board_buttons();
 void adc_task();
 void buttons_melody();
 void letter_task();
 
-#define ADC_PIN 28
-
-static const uint8_t PIN_PWM = 14u;
 uint16_t adc_result;
-uint  slice_num;
 
+uint8_t  slice_num;
+uint8_t board_state;
 uint8_t TOM_letter;
 
+static const uint8_t PIN_PWM = 14u;
+
 states_t BOARD_STATE;
+
 bool LED_RANDOM;
-
-
-uint board_state;
-
- bool button_black_1;
- bool button_black_2;
- bool button_black_3; 
- bool button_white;
- bool button_blue;
- bool button_yellow;
- bool button_green;
+bool play_CORRECT;
+bool play_WRONG;
+bool button_black_1;
+bool button_black_2;
+bool button_black_3; 
+bool button_white;
+bool button_blue;
+bool button_yellow;
+bool button_green;
 
 int main() {
 
@@ -150,6 +144,16 @@ void board_buttons(){
         { 
             play_melody(slice_num, lick, 200, 7);
             init_game = 0;
+        }
+
+        if (true == play_CORRECT){
+            play_melody(slice_num, STEPS, 200, 6);// should be 9
+            play_CORRECT = false;
+        }
+
+        if (true == play_WRONG){
+            play_melody(slice_num, gameOverMario, 200, 3); //should be 12
+            play_WRONG = false;
         }
     } 
     else if (BOARD_STATE == BUZZER_BUTTONS)

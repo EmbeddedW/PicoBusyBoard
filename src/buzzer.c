@@ -1,7 +1,5 @@
 #include "../include/buzzer.h"
 
-
-
 //  1 notes
 note_struct soundC[] = {
 {NOTE_C5, 4}
@@ -24,7 +22,6 @@ note_struct soundG[] = {
 
 //  88 notes
 note_struct pinkPanther[] = {
-
 
   {REST,2}, {REST,4}, {REST,8}, {NOTE_DS4,8}, 
   {NOTE_E4,-4}, {REST,8}, {NOTE_FS4,8}, {NOTE_G4,-4}, {REST,8}, {NOTE_DS4,8},
@@ -50,7 +47,6 @@ note_struct pinkPanther[] = {
   };
 
 
-
 // 12 notes
 note_struct gameOverMario[] = {
   {NOTE_C5,-4}, {NOTE_G4,-4}, {NOTE_E4,4}, //45
@@ -59,15 +55,11 @@ note_struct gameOverMario[] = {
  
   };
 
-
 // 7 notes
 note_struct lick[] = {
   {NOTE_D4,8}, {NOTE_E4,8}, {NOTE_F4,8}, {NOTE_G4,8}, {NOTE_E4,4}, {NOTE_C4,8}, {NOTE_D4,1}
  
   };
-
-
-
 
 // 3 notes
 note_struct turnON[] = {{NOTE_A6, 8}, {NOTE_CS7, 8}, {NOTE_E7, 8}};
@@ -196,7 +188,6 @@ note_struct Mario_melody2[] = {
   //23
 
 };
-
 
 // 26 notes
 note_struct christmas[] = {
@@ -353,17 +344,12 @@ void  play_melody(uint slice_num,note_struct * n,uint tempo, uint nmbr_of_nutes)
           pwm_init(slice_num,&cfg,true);
           pwm_set_chan_level(slice_num,PWM_CHAN_A,cfg.top / 2);
           pwm_set_enabled(slice_num, true);
-
-          //sleep_ms(duration * 0.9);
-
           vTaskDelay(duration * (0.9 / portTICK_PERIOD_MS));
           pwm_set_chan_level(slice_num,PWM_CHAN_A,0);
           vTaskDelay(duration * (0.1 / portTICK_PERIOD_MS));
-          //sleep_ms(duration * 0.1);
       }
       else
           vTaskDelay(duration * (1 / portTICK_PERIOD_MS));
-          //sleep_ms(duration * 1.0);
     }
 
 }

@@ -66,6 +66,8 @@ static uint8_t game_array[16];
 static int counter;
 static bool game_init = true;
 
+static bool default_colour_init;
+
 // horrible temporary hack to avoid changing pattern code
 static uint8_t *current_strip_out;
 static bool current_strip_4color;
@@ -102,7 +104,7 @@ void pattern_snakes(uint len, uint t) {
 
 void pattern_random(uint len, uint t) {
   
-    if (t % 8)
+    if (t % 32)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand());
@@ -252,14 +254,16 @@ void pattern_adcSnake(uint len, uint t) {
     put_pixel(urgb_u32(red_val, blue_val, green_val));
     }
 
-
 }
 
 
 void pattern_singleColour(uint len, uint t) {
     int max = 100; // let's not draw too much current!
     t %= max;
-    int test = 0;
+
+    if (button_green || button_yellow || button_blue || button_white){
+        default_colour_init = false;
+    }
 
     switch (colour)
     {
@@ -284,17 +288,16 @@ void pattern_singleColour(uint len, uint t) {
         blue_val = (uint8_t)0x1f;
         break; 
     default:
-        // RED
-        red_val = (uint8_t)0x0f;
+        // BLANK
+        red_val = (uint8_t)0x00;
         green_val = (uint8_t)0x00;
         blue_val = (uint8_t)0x00;
-        test = 1;
         break;
     }
 
     for (int i = 0; i < len; ++i) {
 
-        if (test){
+        if (default_colour_init){
 
             if(i == 15)
             {
@@ -317,7 +320,7 @@ void pattern_singleColour(uint len, uint t) {
             put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
             }
             else {
-            put_pixel(urgb_u32(red_val, blue_val, green_val));
+            put_pixel(urgb_u32(0x00, 0x00, 0x00));
             }
 
         }  else {      
@@ -346,65 +349,46 @@ void pattern_GameColour(uint len, uint t) {
     static int test_2;
 
     if (true == game_init)
-    {
-        for (int i = 0; i < len; ++i) {
+        {
+        for (int i = 0; i < len; ++i) 
+            {
             if(1 == game_arrow_array[i]) put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
         else                         put_pixel(urgb_u32(0x00, 0x00, 0x00));
+            }
         }
-    }
-    if (button_white) {
-        if(lock_1 == false) start_game = true;
-    }
 
-    if(true == start_game){
+    if (button_white)
+        {
         start_game = false;
         lock_1 = true;
         game_init = false;
         random_colour = rand() % 3;
         colour_timer_start = set_lcd_colour(len, random_colour);   
-    }
+        } 
 
-    //play 3,2,1
-    //set random colour
+    //CHECK THE BUTTONS STATUS;
+    button_white    = gpio_get(WHITE_BUTTON_PIN);
+    button_blue     = gpio_get(BLUE_BUTTON_PIN);
+    button_yellow   = gpio_get(YELLOW_BUTTON_PIN);
+    button_green    = gpio_get(GREEN_BUTTON_PIN);
 
-    //start timer
-    if (colour_timer_start)
+
+    if (button_green) pushed_button = GREEN;
+    else if (button_yellow) pushed_button = YELLOW;
+    else if (button_blue) pushed_button = BLUE;
+    else pushed_button = LAST_OF_US;
+
+    if(false == game_init)
     {
-
-    while(timer < 1000)
-    {
-        if (button_green) pushed_button = 0;
-        else if (button_yellow) pushed_button = 1;
-        else if (button_blue) pushed_button = 2;
-        else pushed_button = 0xff;
-
-        if (random_colour == pushed_button)            
-        {
-            test_2 = 100;
-            colour_timer_start = false;
-            test_correct_flag = true;
-            break;
-            // CORRECT!
-        }
-    timer++; 
-        // else if (((random_colour != GREEN)&&(random_colour != YELLOW)&&(random_colour != BLUE))
-        // && (((pushed_button != GREEN)&&(pushed_button != YELLOW)&&(pushed_button != BLUE))))
-        // {
-        //     test_2 = 200;
-        //     // CORRECT!
-        // }
-        // else
-        // {
-        //     // WRONG!
-        //     test_2 = 999;        
-           
-        // }
+        if (random_colour == pushed_button)          
+            {
+            play_CORRECT = true;
+            } 
+        else if (pushed_button < LAST_OF_US)
+            {
+            play_WRONG = true;
+            }
     }
-    lock_1 = false; 
-    timer = 0;
-    }
-     
-
 }
 
 
@@ -655,7 +639,6 @@ void ws2812_dma_init(){
 
 void led_ws2812(){
 
-    //uint8_t red_val = -0 (uint8_t)((adc_result & 0xFF) >> 8);
     static bool LCD_PIXELS_init;
     int t = 0;
     while (true) {
@@ -689,15 +672,17 @@ void led_ws2812(){
         else if (BOARD_STATE == IDLE) pat = 7;
       
 
-        if(BOARD_STATE != LCD_PIXELS) LCD_PIXELS_init = true;
-        if(BOARD_STATE != GAME)    game_init = true;
-
+        if(BOARD_STATE != LCD_PIXELS)   LCD_PIXELS_init = true;
+        if(BOARD_STATE != GAME)         game_init = true;
+        if(BOARD_STATE != LCD_COLORS)   default_colour_init = true;
 
         int dir = (rand() >> 30) & 1 ? 1 : -1;
         if (rand() & 1) dir = 0;
         puts(pattern_table[pat].name);
         puts(dir == 1 ? "(forward)" : dir ? "(backward)" : "(still)");
         int brightness = 0x200;
+        if (BOARD_STATE == BUZZER_NUTES) brightness= 0x050;
+
         uint current = 0;
         for (int i = 0; i < 10; ++i) {
 
@@ -713,17 +698,11 @@ void led_ws2812(){
 
             current ^= 1;
             t += dir;
-            // brightness++;
-            // if (brightness == (0x20 << FRAC_BITS)) brightness = 0;
         }
-        memset(&states, 0, sizeof(states)); // clear out errors     
-                // & 0x0f for minimum brightness of LED 
-       
-        //vTaskDelay(10/portTICK_PERIOD_MS);
+        memset(&states, 0, sizeof(states));    
     }
 
 }
-
 
 bool set_lcd_colour(uint num_pixels, int colour){
 
