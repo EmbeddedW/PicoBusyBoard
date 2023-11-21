@@ -31,12 +31,15 @@ extern note_struct STEPS[]; // 9
 void board_buttons();
 void adc_task();
 void buttons_melody();
+void letter_task();
 
 #define ADC_PIN 28
 
 static const uint8_t PIN_PWM = 14u;
 uint16_t adc_result;
 uint  slice_num;
+
+uint8_t TOM_letter;
 
 states_t BOARD_STATE;
 bool LED_RANDOM;
@@ -74,6 +77,7 @@ int main() {
     xTaskCreate(led_ws2812, "Led_WS2812 Controll", 256, NULL, 1, NULL);
 
     xTaskCreate(adc_task, "Led_WS2812 Controll", 32, NULL, 2, NULL);
+    xTaskCreate(letter_task, "Led_WS2812 Controll", 32, NULL, 2, NULL);
 
     vTaskStartScheduler();
     return 0;
@@ -118,6 +122,9 @@ void board_buttons(){
             break;
         case LCD_PIXELS:
             BOARD_STATE = LCD_PIXELS;
+            break;            
+        case ADC_SNAKE:
+            BOARD_STATE = ADC_SNAKE;
             break;            
         case IDLE:
             BOARD_STATE = IDLE;
@@ -214,3 +221,14 @@ void adc_task(){
 }
 
 
+void letter_task(){
+
+    while (true) {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        TOM_letter++;
+        if(TOM_letter == 5) TOM_letter = 0;
+
+    }
+
+
+}

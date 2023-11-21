@@ -25,10 +25,15 @@ extern bool button_yellow;
 extern bool button_green;
 extern uint board_state;
 
+extern uint8_t TOM_letter;
+
+
 extern states_t BOARD_STATE;
 extern bool LED_RANDOM;
 
 void led_ws2812();
 void ws2812_dma_init();
+
+bool set_lcd_colour();
 
 #endif

@@ -30,7 +30,7 @@ typedef enum{
     LCD_COLORS,
     LCD_BUTTONS,
     LCD_PIXELS,
-    EMPTY_6,
+    ADC_SNAKE,
     GAME = 7,
 } states_t;
 

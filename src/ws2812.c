@@ -18,7 +18,53 @@ enum {
 };
 
 static uint8_t pixel_array[16];
+static uint8_t game_arrow_array[16] = 
+{1, 0, 0, 0,
+ 1, 0, 1, 0,
+ 0, 0, 1, 1,
+ 1, 1, 1, 0
+};
+
+static uint8_t T_array[16] = 
+{1, 1, 1, 1,
+ 0, 0, 1, 0,
+ 0, 1, 0, 0,
+ 0, 0, 1, 0
+};
+
+static uint8_t O_array[16] = 
+{1, 1, 1, 1,
+ 1, 0, 0, 1,
+ 1, 0, 0, 1,
+ 1, 1, 1, 1
+};
+
+static uint8_t M_array[16] = 
+{1, 1, 0, 1,
+ 1, 1, 0, 1,
+ 1, 0, 0, 1,
+ 1, 0, 0, 1
+};
+
+static uint8_t E_array[16] = 
+{1, 1, 1, 1,
+ 0, 1, 1, 1,
+ 1, 0, 0, 0,
+ 1, 1, 1, 1
+};
+
+static uint8_t K_array[16] = 
+{1, 0, 1, 1,
+ 0, 0, 1, 1,
+ 1, 0, 1, 0,
+ 1, 0, 0, 1
+};
+
+
+
+static uint8_t game_array[16];
 static int counter;
+static bool game_init = true;
 
 // horrible temporary hack to avoid changing pattern code
 static uint8_t *current_strip_out;
@@ -49,7 +95,7 @@ void pattern_snakes(uint len, uint t) {
             put_pixel(urgb_u32(0, 0xff, 0));
         else if (x >= 30 && x < 40)
             put_pixel(urgb_u32(0, 0, 0xff));
-        else
+        else 
             put_pixel(0);
     }
 }
@@ -180,6 +226,36 @@ void pattern_setPixels(uint len, uint t) {
 
 }
 
+void pattern_adcSnake(uint len, uint t) {
+    int max = 100; // let's not draw too much current!
+    t %= max;
+    uint8_t pixel_colour;
+    static bool set_array_pixel;
+    static bool unpush_button_detect;
+
+    static uint8_t number_of_pixels; 
+
+    number_of_pixels = (uint8_t) (adc_result >> 8);
+
+    for (int i = 0; i < len; ++i) {
+
+    if(number_of_pixels <= i){
+    red_val = (uint8_t)0x0f;
+    green_val = (uint8_t)0x00;
+    blue_val = (uint8_t)0x00;
+    } else {
+    red_val = (uint8_t)0x00;
+    green_val = (uint8_t)0x00;
+    blue_val = (uint8_t)0x00;
+    }
+        
+    put_pixel(urgb_u32(red_val, blue_val, green_val));
+    }
+
+
+}
+
+
 void pattern_singleColour(uint len, uint t) {
     int max = 100; // let's not draw too much current!
     t %= max;
@@ -256,57 +332,78 @@ void pattern_GameColour(uint len, uint t) {
     int max = 100; // let's not draw too much current!
     t %= max;
     int test = 0;
+    static bool start_game;
     static int random_colour;
+    static bool colour_timer_start;
+    int pushed_button;
 
-    if (button_white) random_colour = rand() % LAST_OF_US;
+    static bool lock_1;
 
-    switch (random_colour)
-    {
-    case GREEN:
-        red_val = (uint8_t)0x00;
-        green_val = (uint8_t)0x0f;
-        blue_val = (uint8_t)0x00;
-        break;
-    case YELLOW:
-        red_val = (uint8_t)0x1f;
-        green_val = (uint8_t)0x0f;
-        blue_val = (uint8_t)0x00;
-        break; 
-    case BLUE:
-        red_val = (uint8_t)0x00;
-        green_val = (uint8_t)0x00;
-        blue_val = (uint8_t)0x0f;
-        break;
-    case WHITE:
-        red_val = (uint8_t)0x1f;
-        green_val = (uint8_t)0x1f;
-        blue_val = (uint8_t)0x1f;
-        break; 
-    case RED:
-        red_val = (uint8_t)0x1f;
-        green_val = (uint8_t)0x00;
-        blue_val = (uint8_t)0x00;
-        break; 
-    case PURPLE:
-        red_val = (uint8_t)0x1c;
-        green_val = (uint8_t)0x00;
-        blue_val = (uint8_t)0x1c;
-        break; 
+    static bool test_correct_flag;
+
+    static uint32_t timer;
     
-    default:
-        // RED
-        red_val = (uint8_t)0x0f;
-        green_val = (uint8_t)0x00;
-        blue_val = (uint8_t)0x00;
-        test = 1;
-        break;
+    static int test_2;
+
+    if (true == game_init)
+    {
+        for (int i = 0; i < len; ++i) {
+            if(1 == game_arrow_array[i]) put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        else                         put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+    }
+    if (button_white) {
+        if(lock_1 == false) start_game = true;
     }
 
-    for (int i = 0; i < len; ++i) {
-
-        put_pixel(urgb_u32(red_val, blue_val, green_val));
-       
+    if(true == start_game){
+        start_game = false;
+        lock_1 = true;
+        game_init = false;
+        random_colour = rand() % 3;
+        colour_timer_start = set_lcd_colour(len, random_colour);   
     }
+
+    //play 3,2,1
+    //set random colour
+
+    //start timer
+    if (colour_timer_start)
+    {
+
+    while(timer < 1000)
+    {
+        if (button_green) pushed_button = 0;
+        else if (button_yellow) pushed_button = 1;
+        else if (button_blue) pushed_button = 2;
+        else pushed_button = 0xff;
+
+        if (random_colour == pushed_button)            
+        {
+            test_2 = 100;
+            colour_timer_start = false;
+            test_correct_flag = true;
+            break;
+            // CORRECT!
+        }
+    timer++; 
+        // else if (((random_colour != GREEN)&&(random_colour != YELLOW)&&(random_colour != BLUE))
+        // && (((pushed_button != GREEN)&&(pushed_button != YELLOW)&&(pushed_button != BLUE))))
+        // {
+        //     test_2 = 200;
+        //     // CORRECT!
+        // }
+        // else
+        // {
+        //     // WRONG!
+        //     test_2 = 999;        
+           
+        // }
+    }
+    lock_1 = false; 
+    timer = 0;
+    }
+     
 
 }
 
@@ -320,25 +417,56 @@ void pattern_solid(uint len, uint t) {
 
 int level = 8;
 
-void pattern_fade(uint len, uint t) {
-    uint shift = 4;
-
-    uint max = 16; // let's not draw too much current!
-    max <<= shift;
-
-    uint slow_t = t / 32;
-    slow_t = level;
-    slow_t %= max;
-
-    static int error = 0;
-    slow_t += error;
-    error = slow_t & ((1u << shift) - 1);
-    slow_t >>= shift;
-    slow_t *= 0x010101;
+void pattern_TOM(uint len, uint t) {
 
     for (int i = 0; i < len; ++i) {
-        put_pixel(slow_t);
+    switch (TOM_letter)
+    {
+    case 0: // T
+        if(true == T_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 1: // O
+        if(true == O_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 2: // M
+        if(true == M_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 3: // E
+        if(true == E_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;
+    case 4: // K
+        if(true == K_array[i]){
+        put_pixel(urgb_u32(0x1f, 0x1f, 0x1f));
+        }
+        else{
+        put_pixel(urgb_u32(0x00, 0x00, 0x00));
+        }
+        break;     
+    default:
+        break;
     }
+   }
+    
 }
 
 typedef void (*pattern)(uint len, uint t);
@@ -346,14 +474,14 @@ const struct {
     pattern pat;
     const char *name;
 } pattern_table[] = {
-        {pattern_greys,   "Greys"},
-        {pattern_singleColour,   "Colour"},
-        {pattern_sparkle, "Sparkles"},
-        {pattern_random,  "Random data"},
-       {pattern_GameColour,  "GAME!"},
-       {pattern_setPixels,  "set diffrent pixels"},
-       {pattern_solid,  "Solid!"},
-       {pattern_fade, "Fade"},
+    {pattern_greys,   "Greys"},
+    {pattern_singleColour,   "Colour"},
+    {pattern_sparkle, "Sparkles"},
+    {pattern_random,  "Random data"},
+    {pattern_GameColour,  "GAME!"},
+    {pattern_setPixels,  "set diffrent pixels"},
+    {pattern_adcSnake,  "Adc Snakeee"},
+    {pattern_TOM, "TOM!"},
 };
 
 #define VALUE_PLANE_COUNT (8 + FRAC_BITS)
@@ -543,7 +671,9 @@ void led_ws2812(){
         else if (BOARD_STATE == LCD_COLORS) pat = 1;
         else if (BOARD_STATE == BUZZER_BUTTONS) pat = 2;
         else if (BOARD_STATE == BUZZER_NUTES) pat = 3;
-        else if (BOARD_STATE == GAME) pat = 4;
+        else if (BOARD_STATE == GAME) {                      
+            pat = 4;
+        }
         else if (BOARD_STATE == LCD_PIXELS) {
             pat = 5;
             if(true == LCD_PIXELS_init)
@@ -555,11 +685,12 @@ void led_ws2812(){
                 counter = 0;
             }
         }
-        else if (BOARD_STATE == EMPTY_6) pat = 6;
+        else if (BOARD_STATE == ADC_SNAKE) pat = 6;
         else if (BOARD_STATE == IDLE) pat = 7;
       
 
         if(BOARD_STATE != LCD_PIXELS) LCD_PIXELS_init = true;
+        if(BOARD_STATE != GAME)    game_init = true;
 
 
         int dir = (rand() >> 30) & 1 ? 1 : -1;
@@ -591,4 +722,56 @@ void led_ws2812(){
         //vTaskDelay(10/portTICK_PERIOD_MS);
     }
 
+}
+
+
+bool set_lcd_colour(uint num_pixels, int colour){
+
+        switch (colour)
+            {
+            case 0: //GREEN:
+                red_val = (uint8_t)0x00;
+                green_val = (uint8_t)0x0f;
+                blue_val = (uint8_t)0x00;
+                break;
+            case 1: //YELLOW:
+                red_val = (uint8_t)0x1f;
+                green_val = (uint8_t)0x0f;
+                blue_val = (uint8_t)0x00;
+                break; 
+            case 2: //BLUE:
+                red_val = (uint8_t)0x00;
+                green_val = (uint8_t)0x00;
+                blue_val = (uint8_t)0x0f;
+                break;
+            // case WHITE:
+            //     red_val = (uint8_t)0x1f;
+            //     green_val = (uint8_t)0x1f;
+            //     blue_val = (uint8_t)0x1f;
+            //     break; 
+            // case RED:
+            //     red_val = (uint8_t)0x1f;
+            //     green_val = (uint8_t)0x00;
+            //     blue_val = (uint8_t)0x00;
+            //     break; 
+            // case PURPLE:
+            //     red_val = (uint8_t)0x1c;
+            //     green_val = (uint8_t)0x00;
+            //     blue_val = (uint8_t)0x1c;
+            //     break; 
+
+            default:
+                // RED
+                red_val = (uint8_t)0x0f;
+                green_val = (uint8_t)0x00;
+                blue_val = (uint8_t)0x00;
+                break;
+        }
+
+    for (int i = 0; i < num_pixels; ++i) {
+
+        put_pixel(urgb_u32(red_val, blue_val, green_val));
+       
+    }
+    return true;
 }
